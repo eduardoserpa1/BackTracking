@@ -7,8 +7,7 @@ import java.util.HashMap;
 public class bt {
 
     static ArrayList<String> testes = new ArrayList<>();
-
-    //static HashMap<String,ArrayList<String>> memoria_visao_coordenada = new HashMap<>();
+    static ArrayList<String> coordenadas_pelo_tamanho = new ArrayList<>();
 
     public static void main(String[] args) {
         switch (args.length){
@@ -85,28 +84,33 @@ public class bt {
     }
 
     static long exec(int n, int p, int g){
+        coordenadas_pelo_tamanho = retorna_coordenadas_da_matriz(n);
         return c(clear_str_v(new String[n*n]),0, p, g);
     }
 
     static long combinatoria_galinhas(String[] v, int tamanho, int qtd_galinhas){
-        ArrayList<String> coordenadas = retorna_coordenadas_da_matriz(tamanho);
+        ArrayList<String> coordenadas = new ArrayList<>();
 
-        coordenadas = filtra_coordenada(v,coordenadas,tamanho);
+        coordenadas.addAll(coordenadas_pelo_tamanho);
 
-        if(qtd_galinhas < coordenadas.size())
+        int espacos_livres = filtra_coordenada(v,coordenadas,tamanho);
+
+        if(qtd_galinhas < espacos_livres)
             return c_pura(clear_str_v(new String[coordenadas.size()]),0,qtd_galinhas);
         else
-        if(qtd_galinhas == coordenadas.size())
+        if(qtd_galinhas == espacos_livres)
             return 1;
         else
             return 0;
     }
-
+    static boolean acabou = false;
     static long c(String[] v, int atual, int porquinhos, int galinhas){
         int r = 0;
 
-        if(porquinhos == 0)
+        if(porquinhos == 0){
             return combinatoria_galinhas(v,(int)Math.sqrt(v.length),galinhas);
+        }
+
 
         for (int i = atual; i < v.length; i++) {
             if(v[i].equals("p"))
@@ -122,10 +126,13 @@ public class bt {
     static long c_pura(String[] v, int atual, int elementos){
         int r = 0;
 
-        if(elementos == 0)
+        if(elementos == 0){
             return 1;
+        }
 
-        for (int i = atual; i < v.length; i++) {
+        int len = v.length;
+
+        for (int i = atual; i < len; i++) {
             if(v[i].equals("p"))
                 continue;
             v[i] = "p";
@@ -133,13 +140,12 @@ public class bt {
             v[i] = " ";
         }
 
+
         return r;
     }
 
 
-    static ArrayList<String> filtra_coordenada(String[] v, ArrayList<String> coordenadas, int tamanho){
-        ArrayList<String> r = new ArrayList<>();
-
+    static int filtra_coordenada(String[] v, ArrayList<String> coordenadas, int tamanho){
         ArrayList<String> posicoes_ocupadas = new ArrayList<>();
 
         for (int i = 0; i < v.length; i++)
@@ -147,11 +153,12 @@ public class bt {
                 posicoes_ocupadas.add(coordenadas.get(i));
 
         for (String s:posicoes_ocupadas){
+            ArrayList<String> coordenadas_para_remover = new ArrayList<>();
+
 
             String[] split = s.split("-");
             String x = split[0];
             String y = split[1];
-
 
             for (int i = coordenadas.size()-1; i >= 0; i--) {
                 String[] splitc = coordenadas.get(i).split("-");
@@ -159,10 +166,10 @@ public class bt {
                 String yc = splitc[1];
 
                 if(x.equals(xc))
-                    coordenadas.remove(i);
+                    coordenadas_para_remover.add(coordenadas.get(i));
                 else
                 if(y.equals(yc))
-                    coordenadas.remove(i);
+                    coordenadas_para_remover.add(coordenadas.get(i));
 
             }
 
@@ -171,14 +178,14 @@ public class bt {
 
             while (xi <= tamanho - 1 || yi <= tamanho - 1){
                 String coord = xi+"-"+yi;
-                coordenadas.remove(coord);
+                coordenadas_para_remover.add(coord);
                 xi++;
                 yi++;
             }
 
-            while (xi >= 0 || yi >= 0){
+            while (xi >= 0 && yi >= 0){
                 String coord = xi+"-"+yi;
-                coordenadas.remove(coord);
+                coordenadas_para_remover.add(coord);
                 xi--;
                 yi--;
             }
@@ -186,9 +193,9 @@ public class bt {
             xi = Integer.parseInt(x);
             yi = Integer.parseInt(y);
 
-            while (xi >= 0 || yi <= tamanho - 1){
+            while (xi >= 0 && yi <= tamanho - 1){
                 String coord = xi+"-"+yi;
-                coordenadas.remove(coord);
+                coordenadas_para_remover.add(coord);
                 xi--;
                 yi++;
             }
@@ -196,16 +203,21 @@ public class bt {
             xi = Integer.parseInt(x);
             yi = Integer.parseInt(y);
 
-            while (xi <= tamanho - 1 || yi >= 0){
+            while (xi <= tamanho - 1 && yi >= 0){
                 String coord = xi+"-"+yi;
-                coordenadas.remove(coord);
+                coordenadas_para_remover.add(coord);
                 xi++;
                 yi--;
             }
+
+
+
+            for (String str:coordenadas_para_remover)
+                coordenadas.remove(str);
 
         }
 
-        return coordenadas;
+        return coordenadas.size();
     }
 
     static ArrayList<String> retorna_coordenadas_da_matriz(int n){
@@ -241,4 +253,6 @@ public class bt {
         }
         System.out.println();
     }
+
+
 }
